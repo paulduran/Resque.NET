@@ -17,9 +17,9 @@ namespace Resque
             RedisNames = names.Select(x => string.Format("queue:{0}", x)).ToArray();
         }
 
-        public Tuple<string, QueuedItem> Pop()
+        public Tuple<string, QueuedItem> Pop(int timeoutSeconds)
         {
-            var queued = Client.BLPop(RedisNames);
+            var queued = Client.BLPop(RedisNames, timeoutSeconds);
             if (queued != null && !string.IsNullOrEmpty(queued.Item2))
                 return new Tuple<string, QueuedItem>(queued.Item1, JsonConvert.DeserializeObject<QueuedItem>(queued.Item2));
 

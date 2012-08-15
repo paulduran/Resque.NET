@@ -9,6 +9,11 @@ namespace Resque
         public IRedis Client { get; set; }
         protected List<Worker> Workers { get; private set; }
 
+        /// <summary>
+        /// the number of seconds the workers block, waiting for a job to appear on a queue
+        /// </summary>
+        public int Interval { get; set; }
+
         public IEnumerable<string> Queues {get { return Client.SMembers("queue:*"); }} 
 
         public Resque(IJobCreator jobCreator, IFailureService failureService, IRedis client)
@@ -29,13 +34,14 @@ namespace Resque
         {
             var worker = new Worker(JobCreator, FailureService, Client, queues);
             Workers.Add(worker);
-            worker.Work();
+            worker.Work(Interval);
         }
+
         public System.Threading.Tasks.Task WorkAsync(params string[] queues)
         {
             var worker = new Worker(JobCreator, FailureService, Client, queues);
             Workers.Add(worker);
-            return System.Threading.Tasks.Task.Factory.StartNew(() => worker.Work());
+            return System.Threading.Tasks.Task.Factory.StartNew(() => worker.Work(Interval));
         }
     }
 }

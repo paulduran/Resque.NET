@@ -85,7 +85,7 @@ namespace Resque
                         continue;
                     }
 
-                    var job = Reserve();
+                    var job = Reserve(interval);
                     if (job != null)
                     {
                         SetWorkingOn(job);
@@ -98,7 +98,6 @@ namespace Resque
                     {
                         if (interval == 0)
                             break;
-                        Thread.Sleep(TimeSpan.FromSeconds(interval));
                     }
                 }
             }
@@ -176,10 +175,10 @@ namespace Resque
             Client.Set(string.Format("worker:{0}", WorkerId), JsonConvert.SerializeObject(data));
         }
 
-        public IJob Reserve()
+        public IJob Reserve(int timeoutSeconds)
         {
             var multi = new MultiQueue(Client, RedisQueues);
-            var item = multi.Pop();
+            var item = multi.Pop(timeoutSeconds);
             if (item != null)
             {
                 var queueName = GetQueueName(item.Item1);
