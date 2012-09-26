@@ -49,12 +49,15 @@ namespace Test.Resque
                 }
             }
         }
+        
+        const int TimeoutSeconds = 3;
+
         [Test]
         public void calling_Reserve_should_get_a_job()
         {
             var package = new TestPackage(new[] {""});
 
-            var job = package.UnderTest.Reserve();
+            var job = package.UnderTest.Reserve(TimeoutSeconds);
 
             Assert.That(job, Is.Not.Null);
         }
@@ -63,7 +66,7 @@ namespace Test.Resque
         {
             var package = new TestPackage(new[] { "queue1", "queue2" });
 
-            var job = package.UnderTest.Reserve();
+            var job = package.UnderTest.Reserve(TimeoutSeconds);
 
             package.RedisMock.Verify(x => x.BLPop(new[] { "queue:queue1", "queue:queue2" }, It.IsAny<int>()));
         }
@@ -74,10 +77,9 @@ namespace Test.Resque
             package.RedisMock.Setup(x => x.SMembers("queues")).Returns(new[] {"RandomQueue"})
                 .Verifiable();
 
-            var job = package.UnderTest.Reserve();
+            var job = package.UnderTest.Reserve(TimeoutSeconds);
 
             package.RedisMock.Verify();
         }
     }
-
 }
