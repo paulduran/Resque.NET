@@ -72,6 +72,7 @@ namespace Resque
 
         public void Work(int interval = 5)
         {
+            Shutdown = false;
             try
             {
                 Startup();
