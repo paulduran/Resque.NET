@@ -29,6 +29,7 @@ namespace Resque
             {
                 worker.Shutdown = true;
             }
+            Workers.Clear();
         }
         public void Work(params string[] queues)
         {
